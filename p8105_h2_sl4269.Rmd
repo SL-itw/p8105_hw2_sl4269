@@ -1,5 +1,6 @@
 ---
 title: "p8105_hw2_sl4269"
+subtitle: "Data Wrangling 1"
 author: "Steven Lawrence"
 date: "September 28, 2019"
 output: github_document
@@ -9,3 +10,63 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Problem 1
+
+Loading libraries
+
+```{r libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+```
+
+
+## Importing the Data sets
+
+Cleaning Mr.trash data
+
+```{r data import, message=FALSE, warning=FALSE}
+mr.trash <-
+  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", na = "", trim_ws = T, skip = 1, sheet = 1) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster)%>%
+  mutate(sports_balls = sports_balls %>% round(digits =0) %>% as.numeric())
+
+
+
+
+```
+
+Cleaning and merging precipitation data sets
+
+```{r}
+
+##precipitation is in inches
+precip17<- 
+  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", na= "", trim_ws = T, skip = 1, sheet = 4) %>% 
+  janitor::clean_names() %>% 
+  drop_na(total)%>%
+  mutate(year = "2017", month = month.name[month])
+
+precip18<- 
+  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", na= "", trim_ws = T, skip = 1, sheet = 3) %>% 
+  janitor::clean_names() %>% 
+  drop_na(total)%>%
+  mutate(year = "2018", month = month.name[month])
+
+precip18_and_17 <- rbind(precip17, precip18)
+
+precip_by_year<- precip18_and_17 %>% 
+  pivot_wider(
+              names_from = year,
+              values_from = total)
+precip_by_year$month[13]<- "Total precipitation"
+
+precip_by_year
+
+```
+
+###Datadiscription
+
+The `precip18_and_17` dataset contains precipitation data of 2017 and 2018.  There are `6` months of missing data in 2018 being from august to december. The dimentions of this dataset is `13x3` where the 13th row is total precipiation. For the available data the total precipitation of 2018 was `r pull(precip_by_year[13,3])` and the median number of sports balls in the dumpster is `r mr.trash %>% pull(sports_balls) %>% median()`.
+
+#Problem 2

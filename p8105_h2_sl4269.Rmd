@@ -37,7 +37,7 @@ mr.trash <-
 
 Cleaning and merging precipitation data sets
 
-```{r}
+```{r importing datasets, message=F}
 
 ##precipitation is in inches
 precip17<- 
@@ -60,8 +60,6 @@ precip_by_year<- precip18_and_17 %>%
               values_from = total)
 precip_by_year$month[13]<- "Total precipitation"
 
-precip_by_year
-
 ```
 
 ###Datadiscription
@@ -70,7 +68,7 @@ The `precip18_and_17` dataset contains precipitation data of 2017 and 2018. The 
 
 #Problem 2
 
-```{r}
+```{r cleaning datasets, message=F, warning=F}
 
 polls <- 
   read_csv("data/pols-month.csv") %>% 

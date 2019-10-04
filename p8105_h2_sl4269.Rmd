@@ -119,3 +119,59 @@ dim(polls_snp_umemployed
 The polls data set contains poll information from all the branches of government from the time of `1947 - 2015`. The dimenstion of this dataset is `822 by 9`. The snp data set contains information about the number of retracted peer reviewed papers from `1950 - 2015` with a dimension of `787 by 4`. Lastly, the unemployed dataset contains information of unemployment percentages from years `1948 - 2015` and dimentions of `816 to 3`. When the data sets combined, thet are filtered by the time period`1950 - 2015` and the dimensions are `786 by 11`.
 
 
+# Problem 3
+
+Loading in data set and cleaning it
+```{r}
+
+Baby_names <- 
+  read_csv("./data/Popular_Baby_Names.csv") %>% 
+  janitor::clean_names() %>% 
+  distinct() %>% 
+  mutate(rank = as.factor(rank))
+```
+
+Table of Olivai's rank over time and ethnicity. 
+```{r}
+
+baby_olivia<- 
+  Baby_names %>% 
+  filter(childs_first_name =="Olivia") %>% 
+  group_by(ethnicity, year_of_birth) 
+  baby_olivia<- baby_olivia[order(pull(baby_olivia,rank)),] 
+  baby_olivia %>% 
+  knitr::kable(digits = 1)
+
+```
+
+Table of most popular male names.
+```{r}
+  
+baby_popular_male_name <-
+  Baby_names %>% 
+  filter(gender == "MALE", rank == 1)
+
+baby_popular_male_name <- 
+  baby_popular_male_name[
+    order(
+      pull(
+        baby_popular_male_name,-rank)
+      ),
+    ]
+
+baby_popular_male_name %>% 
+  knitr::kable(digits = 1)
+
+```
+
+Scatter plot of male, white non-hispanic, baby name observastions along wtih their rank. 
+
+```{r}
+baby_male_name_scatterplot <-
+  Baby_names %>% 
+  filter(gender == "MALE", ethnicity == "WHITE NON HISPANIC", year_of_birth == 2016) %>% 
+  ggplot(aes(x = rank, y = count))+geom_point()+labs(title = "Male White Non Hispanic baby name count by Rank in 2016")
+
+baby_male_name_scatterplot
+```
+

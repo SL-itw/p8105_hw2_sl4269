@@ -16,8 +16,6 @@ Loading libraries
 
 ```{r libraries, message=FALSE, warning=FALSE}
 library(tidyverse)
-library(tidyr)
-library(dplyr)
 ```
 
 
@@ -43,13 +41,13 @@ Cleaning and merging precipitation data sets
 
 ##precipitation is in inches
 precip17<- 
-  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", na= "", trim_ws = T, skip = 1, sheet = 4) %>% 
+  readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", na= "", trim_ws = T, skip = 1, sheet = 6) %>% 
   janitor::clean_names() %>% 
   drop_na(total)%>%
   mutate(year = "2017", month = month.name[month])
 
 precip18<- 
-  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", na= "", trim_ws = T, skip = 1, sheet = 3) %>% 
+  readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", na= "", trim_ws = T, skip = 1, sheet = 5) %>% 
   janitor::clean_names() %>% 
   drop_na(total)%>%
   mutate(year = "2018", month = month.name[month])
@@ -68,7 +66,7 @@ precip_by_year
 
 ###Datadiscription
 
-The `precip18_and_17` dataset contains precipitation data of 2017 and 2018.  There are `6` months of missing data in 2018 being from august to december. The dimentions of this dataset is `13x3` where the 13th row is total precipiation. For the available data the total precipitation of 2018 was `r pull(precip_by_year[13,3])` and the median number of sports balls in the dumpster in 2017 is `r mr.trash %>% pull(sports_balls) %>% median()`.
+The `precip18_and_17` dataset contains precipitation data of 2017 and 2018. The dimentions of this dataset is `13x3` where the 13th row is total precipiation. For the available data the total precipitation of 2018 was `r pull(precip_by_year[13,3])` and the median number of sports balls in the dumpster in 2017 is `r mr.trash %>% pull(sports_balls) %>% median()`.
 
 #Problem 2
 
@@ -79,22 +77,41 @@ polls <-
   janitor::clean_names() %>% 
   separate(mon, c('year', 'month', 'day') ) %>% 
   mutate(
-    month = as.numeric(month), 
-    month = month.name[month],
+    month = month.abb[as.numeric(month)] %>% tolower(), 
     president = prez_gop + prez_dem 
     ) %>% 
-  select(year, month, president, everything(), -day, - prez_gop, -prez_dem) 
-  
-
-polls
+  select(year, month, president, everything(), -day, - prez_gop, -prez_dem) %>% 
+  arrange(year, month)
 
 snp <- 
   read_csv("data/snp.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  separate(date, c("month","day","year")) %>% 
+  mutate( 
+    month= month.abb[as.numeric(month)] %>% tolower()
+  ) %>% 
+  select(year, month, everything()) %>% 
+  arrange(year,month)
 
 unemployed <- 
   read_csv("data/unemployment.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  mutate(
+    year = as.character(year)
+  ) %>% 
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "unemployment"
+  ) %>% 
+  arrange(year,month)
+
+polls_snp<- merge(polls, snp, by = c("year","month")) 
+
+polls_snp_umemployed <- left_join(polls_snp, unemployed, by = c("year", "month"))
+  
+head(polls_snp_umemployed)
+
 
 ```
 

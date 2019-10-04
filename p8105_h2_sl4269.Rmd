@@ -106,10 +106,16 @@ unemployed <-
 
 polls_snp<- merge(polls, snp, by = c("year","month")) 
 
-polls_snp_umemployed <- left_join(polls_snp, unemployed, by = c("year", "month"))
-  
-head(polls_snp_umemployed)
+polls_snp_umemployed <- left_join(polls_snp, unemployed, by = c("year", "month")) %>% 
+  select(everything(), - day)
 
+view(polls_snp_umemployed)
+
+dim(polls_snp_umemployed
+    )
 
 ```
+
+The polls data set contains poll information from all the branches of government from the time of `1947 - 2015`. The dimenstion of this dataset is `822 by 9`. The snp data set contains information about the number of retracted peer reviewed papers from `1950 - 2015` with a dimension of `787 by 4`. Lastly, the unemployed dataset contains information of unemployment percentages from years `1948 - 2015` and dimentions of `816 to 3`. When the data sets combined, thet are filtered by the time period`1950 - 2015` and the dimensions are `786 by 11`.
+
 
